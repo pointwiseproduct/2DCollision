@@ -168,7 +168,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLin
 
     srand(0x09485524);    // 乱数再初期化
 
-    WaitKey();
+    //WaitKey();
 
     int ff = sizeof(cell<CIRCLE>);
 
@@ -194,7 +194,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLin
         CAry[cn].w = CAry[cn].r*CAry[cn].r*CAry[cn].r;    // 質量は半径の3乗に比例とします
         // OFTに登録
         tree_object<CIRCLE> *p = new tree_object<CIRCLE>( cn );
-        p->m_pObject = &CAry[cn];    // 登録
+        p->object = &CAry[cn];    // 登録
         spOFTAry[cn] = p;
     }
 
@@ -205,7 +205,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLin
     //  円が飛び出さない範囲を指定すれば良いので
     //  アバウトです
     liner_for_tree_manager<CIRCLE> LTree;
-    if(!LTree.Init(g_PartitionLebel, -60.0f, -1200.0f, 720.0f, 520.0f))
+    if(!LTree.init(g_PartitionLebel, -60.0f, -1200.0f, 720.0f, 520.0f))
     {
         return -1;
     }
@@ -233,21 +233,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLin
             if ( change == true ) {
                 i = g_CircleNum - cn - 1;
             }
-            CIRCLE *pTmp = spOFTAry[i]->m_pObject;
+            CIRCLE *pTmp = spOFTAry[i]->object;
             GetNextCirclePos( *pTmp );    // 次の移動位置を仮決定
-            spOFTAry[i]->Remove();        // 一度リストから外れる
+            spOFTAry[i]->remove();        // 一度リストから外れる
             // 再登録
-            LTree.Regist( pTmp->x-pTmp->r, pTmp->y-pTmp->r, pTmp->x+pTmp->r, pTmp->y+pTmp->r, spOFTAry[i] );
+            LTree.register_object( pTmp->x-pTmp->r, pTmp->y-pTmp->r, pTmp->x+pTmp->r, pTmp->y+pTmp->r, spOFTAry[i] );
         }
         change = !change;
 
         // 衝突対応リストを取得
-        ColNum = LTree.GetAllCollisionList( &ColVect );
+        ColNum = LTree.get_all_collision_list( ColVect );
 
         // 衝突判定
         std::uint32_t c;
         ColNum/=2;    // 2で割るのはペアになっているので
-        CIRCLE** pRoot = ColVect->getRootPtr();
+        CIRCLE** pRoot = ColVect->root();
         for(c=0; c<ColNum; c++){
             double r2 = (pRoot[c*2]->r+pRoot[c*2+1]->r)*(pRoot[c*2]->r+pRoot[c*2+1]->r);
             double x = (pRoot[c*2]->x-pRoot[c*2+1]->x);
